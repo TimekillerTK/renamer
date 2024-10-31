@@ -1,8 +1,21 @@
 use std::io::{self, Write};
+pub mod cli;
 pub mod structs;
+use crate::cli::Cli;
+use clap::Parser;
 use structs::FileEntries;
 
 fn main() {
+    // CLI
+    let cli = Cli::parse();
+
+    let path = match cli.path {
+        Some(path) => path,
+        None => {
+            String::from(".") // Default to the current directory if no path is provided
+        }
+    };
+
     println!("\nType desired show name, for example (do not include episodes!):\n My Great Show - Season 1\n");
     io::stdout().flush().unwrap(); // to ensure the prompt is immediately displayed before waiting for input
 
@@ -13,7 +26,7 @@ fn main() {
 
     let name = input_name.trim();
 
-    let file_entries = FileEntries::new();
+    let file_entries = FileEntries::new(&path);
 
     // Rename files
     println!("Renaming files in directory: {}", file_entries.dir_path);

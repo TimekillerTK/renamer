@@ -18,8 +18,7 @@ pub struct FileEntries {
 }
 
 impl FileEntries {
-    pub fn new() -> Self {
-        let dir_path = ".";
+    pub fn new(dir_path: &str) -> Self {
         let mut file_entries: Vec<FileEntry> = Vec::new();
         match fs::read_dir(dir_path) {
             Ok(entries) => {
