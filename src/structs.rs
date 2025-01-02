@@ -43,7 +43,7 @@ impl FileEntries {
         }
     }
 
-    pub fn rename(&self, name: &str, execute_rename: bool) -> Option<()> {
+    pub fn rename(&self, name: &str, first_episode: usize, execute_rename: bool) -> Option<()> {
         for (index, entry) in self.entries.iter().enumerate() {
             let old_path = &entry.path;
             let extension = old_path
@@ -56,7 +56,7 @@ impl FileEntries {
             let new_name = format!(
                 "{} - E{:0width$}.{}",
                 name,
-                index + 1,
+                first_episode + index,
                 extension,
                 width = self.zero_padding()
             );
