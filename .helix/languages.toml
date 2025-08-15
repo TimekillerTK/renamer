@@ -1,0 +1,9 @@
+[[language]]
+name = "rust"
+language-servers = ["rust-analyzer"]
+
+[language-server.rust-analyzer]
+command = ".devenv/profile/bin/rust-analyzer"
+
+[language-server.rust-analyzer.config]
+cargo.targetDir = "target/rust-analyzer"

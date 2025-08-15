@@ -30,15 +30,14 @@ fn main() {
 
     println!("\nWhich is the first episode? Press ENTER to start from 1.\n");
     io::stdout().flush().unwrap(); // to ensure the prompt is immediately displayed before waiting for input
-
     let mut input_episode_number = String::new();
     io::stdin()
         .read_line(&mut input_episode_number)
         .expect("Failed to read line");
 
-    let first_episode =  match input_episode_number.trim().parse::<usize>() {
+    let first_episode = match input_episode_number.trim().parse::<usize>() {
         Ok(x) => x,
-        Err(_) => 1
+        Err(_) => 1,
     };
 
     // Rename files
