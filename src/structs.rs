@@ -34,8 +34,11 @@ impl FileEntries {
             Err(e) => eprintln!("Error reading directory: {}", e),
         }
 
-        // Sort the file_entries alphabetically
-        file_entries.sort_by(|a, b| a.path.file_name().cmp(&b.path.file_name()));
+        // Below had flawed ordering for larger directories
+        // file_entries.sort_by(|a, b| a.path.file_name().cmp(&b.path.file_name()));
+
+        // Sort the file_entries alphanumerically
+        file_entries.sort_by(|a, b| alphanumeric_sort::compare_path(&a.path, &b.path));
 
         Self {
             entries: file_entries,
