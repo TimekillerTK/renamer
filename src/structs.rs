@@ -1,3 +1,5 @@
+use crate::error::Result;
+use regex::Regex;
 use std::fs;
 use std::path::PathBuf;
 
@@ -34,9 +36,6 @@ impl FileEntries {
             Err(e) => eprintln!("Error reading directory: {}", e),
         }
 
-        // Below had flawed ordering for larger directories
-        // file_entries.sort_by(|a, b| a.path.file_name().cmp(&b.path.file_name()));
-
         // Sort the file_entries alphanumerically
         file_entries.sort_by(|a, b| alphanumeric_sort::compare_path(&a.path, &b.path));
 
@@ -46,7 +45,7 @@ impl FileEntries {
         }
     }
 
-    pub fn rename(&self, name: &str, first_episode: usize, execute_rename: bool) -> Option<()> {
+    pub fn rename(&self, name: &str, first_episode: usize, execute_rename: bool) -> Result<()> {
         for (index, entry) in self.entries.iter().enumerate() {
             let old_path = &entry.path;
             let extension = old_path
@@ -79,10 +78,55 @@ impl FileEntries {
                 }
             }
         }
-        Some(())
+        Ok(())
     }
 
-    /// Selects the number of padding needed for the number of files in the directory
+    pub fn add_zero_padding(&self, execute_rename: bool, which_number: usize) -> Result<()> {
+        for entry in self.entries.iter() {
+            let old_path = &entry.path;
+            let re = Regex::new(r"\d+").unwrap();
+
+            // Since file extensions can have numbers, we split the file stem from the file extension
+            let mut file_stem = old_path.file_stem().unwrap().to_string_lossy().to_string();
+            let file_extension = old_path.extension().unwrap().to_string_lossy().to_string();
+
+            // Collect all matches' spans (which contain start & end range we can use later)
+            let matches: Vec<_> = re.find_iter(&file_stem).collect();
+
+            // Handle this later
+            let selected_match = &matches[which_number - 1];
+
+            // let first = &matches[0];
+            let number_str = &file_stem[selected_match.range()];
+            let padded_number = format!(
+                "{:0width$}",
+                number_str.parse::<u32>().unwrap(),
+                width = &self.zero_padding()
+            );
+
+            file_stem.replace_range(selected_match.range(), &padded_number);
+            let new_file_name = format!("{}.{}", file_stem, file_extension);
+            let new_path = old_path.with_file_name(new_file_name);
+
+            match execute_rename {
+                true => {
+                    // Rename the file
+                    match fs::rename(old_path, &new_path) {
+                        Ok(_) => {
+                            println!("Renamed: {} -> {}", old_path.display(), new_path.display())
+                        }
+                        Err(e) => eprintln!("Error renaming {}: {}", old_path.display(), e),
+                    }
+                }
+                false => {
+                    println!("{} -> {}", old_path.display(), new_path.display());
+                }
+            };
+        }
+        Ok(())
+    }
+
+    /// Selects the number of leading zeroes needed for the number of files in the directory
     fn zero_padding(&self) -> usize {
         match self.entries.len() {
             0 => {
