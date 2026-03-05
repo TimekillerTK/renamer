@@ -20,7 +20,7 @@ fn main() -> Result<()> {
 
         None
     } else {
-        println!("\nType desired show name, for example (do not include episodes!):\n My Great Show - Season 1\n");
+        println!("\nType desired show name - for example (do not include episodes!):\n My Great Show - Season 1\n");
         io::stdout().flush().unwrap(); // to ensure the prompt is immediately displayed before waiting for input
 
         let mut input_name = String::new();
